@@ -6,6 +6,8 @@ import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
 import {ERC721, ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 error RandomIpfsNft__RangeOutOfBounds();
+error RandomIpfsNft__NeedMoreETHSent();
+error RandomIpfsNft__TransferFailed();
 
 contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721URIStorage {
     // when we mint an NFT, we will trigger a Chainlink VRF call to get us a random number
@@ -14,6 +16,7 @@ contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721URIStorage {
     // Pug super rare
     // Shiba Inu kind of rare
     // St. Bernard common
+
     // users have to pay to mint an NFT
     // the owner of the contract can withdraw the ETH
 
@@ -39,6 +42,11 @@ contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721URIStorage {
     uint256 public s_tokenCounter;
     uint256 internal constant MAX_CHANCE_VALUE = 100;
     string[] internal s_dogTokenURIs;
+    uint256 internal immutable i_mintFee;
+
+    // Events
+    event NFTRequested(uint256 indexed requestId, address requester);
+    event NFTMinted(Breed dogBreed, address minter);
 
     constructor(
         address vrfCoordinator,
@@ -46,16 +54,22 @@ contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721URIStorage {
         bytes32 gasLane,
         uint32 callbackGasLimit,
         bool enableNativePayment,
-        string[3] memory dogTokenURIs
+        string[3] memory dogTokenURIs,
+        uint256 mintFee
     ) VRFConsumerBaseV2Plus(vrfCoordinator) ERC721("Random IPFS NFT", "RIN") {
         i_subscriptionId = subscriptionId;
         i_gasLane = gasLane;
         i_callbackGasLimit = callbackGasLimit;
         s_enableNativePayment = enableNativePayment;
         s_dogTokenURIs = dogTokenURIs;
+        i_mintFee = mintFee;
     }
 
-    function requestNft() public returns (uint256 requestId) {
+    function requestNft() public payable returns (uint256 requestId) {
+        if (msg.value < i_mintFee) {
+            revert RandomIpfsNft__NeedMoreETHSent();
+        }
+
         requestId = s_vrfCoordinator.requestRandomWords(
             VRFV2PlusClient.RandomWordsRequest({
                 keyHash: i_gasLane,
@@ -72,6 +86,8 @@ contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721URIStorage {
         );
 
         s_requestIdToSender[requestId] = msg.sender;
+
+        emit NFTRequested(requestId, msg.sender);
     }
 
     function fulfillRandomWords(
@@ -91,6 +107,8 @@ contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721URIStorage {
         Breed dogBreed = getBreedFromModdedRng(moddedRng);
         _safeMint(dogOwner, s_tokenCounter);
         _setTokenURI(s_tokenCounter, s_dogTokenURIs[uint256(dogBreed)]);
+
+        emit NFTMinted(dogBreed, dogOwner);
     }
 
     function getBreedFromModdedRng(
@@ -116,7 +134,13 @@ contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721URIStorage {
         return [10, 30, MAX_CHANCE_VALUE];
     }
 
-    function tokenURI(uint256) public view override returns (string memory) {}
+    function withdraw() public onlyOwner {
+        uint256 amount = address(this).balance;
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        if (!success) {
+            revert RandomIpfsNft__TransferFailed();
+        }
+    }
 
     function setEnableNativePayment(bool enableNativePayment) external {
         s_enableNativePayment = enableNativePayment;
@@ -124,5 +148,17 @@ contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721URIStorage {
 
     function getEnableNativePayment() public view returns (bool) {
         return s_enableNativePayment;
+    }
+
+    function getMintFee() public view returns (uint256) {
+        return i_mintFee;
+    }
+
+    function getDogTokenURI(uint256 index) public view returns (string memory) {
+        return s_dogTokenURIs[index];
+    }
+
+    function getTokenCounter() public view returns (uint256) {
+        return s_tokenCounter;
     }
 }
