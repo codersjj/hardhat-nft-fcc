@@ -3,11 +3,11 @@ pragma solidity ^0.8.28;
 
 import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721, ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 error RandomIpfsNft__RangeOutOfBounds();
 
-contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721 {
+contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721URIStorage {
     // when we mint an NFT, we will trigger a Chainlink VRF call to get us a random number
     // using that number, we will get a random NFT
     // Pug, Shiba Inu, St. Bernard
@@ -38,18 +38,21 @@ contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721 {
     // NFT Variables
     uint256 public s_tokenCounter;
     uint256 internal constant MAX_CHANCE_VALUE = 100;
+    string[] internal s_dogTokenURIs;
 
     constructor(
         address vrfCoordinator,
         uint256 subscriptionId,
         bytes32 gasLane,
         uint32 callbackGasLimit,
-        bool enableNativePayment
+        bool enableNativePayment,
+        string[3] memory dogTokenURIs
     ) VRFConsumerBaseV2Plus(vrfCoordinator) ERC721("Random IPFS NFT", "RIN") {
         i_subscriptionId = subscriptionId;
         i_gasLane = gasLane;
         i_callbackGasLimit = callbackGasLimit;
         s_enableNativePayment = enableNativePayment;
+        s_dogTokenURIs = dogTokenURIs;
     }
 
     function requestNft() public returns (uint256 requestId) {
@@ -87,6 +90,7 @@ contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721 {
 
         Breed dogBreed = getBreedFromModdedRng(moddedRng);
         _safeMint(dogOwner, s_tokenCounter);
+        _setTokenURI(s_tokenCounter, s_dogTokenURIs[uint256(dogBreed)]);
     }
 
     function getBreedFromModdedRng(
