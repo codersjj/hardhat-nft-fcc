@@ -11,6 +11,9 @@ const WEI_PER_UNIT_LINK = ethers.parseEther("0.01")
 const VRF_SUB_FUND_AMOUNT = ethers.parseEther("30")
 
 module.exports = buildModule("RandomIpfsNft", (m) => {
+  const dogTokenURIs = m.getParameter("dogTokenURIs")
+  console.log("🚀 ~ module.exports=buildModule ~ dogTokenURIs:", dogTokenURIs)
+
   const chainId = network.config.chainId
   const currentNetworkConfig = networkConfig[chainId]
   const { mintFee, gasLane, callbackGasLimit, enableNativePayment } =

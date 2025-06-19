@@ -3683,6 +3683,7 @@ __metadata:
     ethers: "npm:^6.14.1"
     hardhat: "npm:^2.24.2"
     hardhat-gas-reporter: "npm:^1.0.8"
+    pinata: "npm:^2.4.8"
     solidity-coverage: "npm:^0.8.1"
     ts-node: "npm:>=8.0.0"
     typechain: "npm:^8.3.0"
@@ -5205,6 +5206,21 @@ __metadata:
   version: 4.0.1
   resolution: "pify@npm:4.0.1"
   checksum: 10c0/6f9d404b0d47a965437403c9b90eca8bb2536407f03de165940e62e72c8c8b75adda5516c6b9b23675a5877cc0bcac6bdfb0ef0e39414cd2476d5495da40e7cf
+  languageName: node
+  linkType: hard
+
+"pinata@npm:^2.4.8":
+  version: 2.4.8
+  resolution: "pinata@npm:2.4.8"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 10c0/5e30a52efd17afff90308c4e41b70937184369001b2fd92b727769a3e9444b09f115b4f3ec8fac6674e5a68bee362dd0a060154ef352a6185f45b1651cc0a192
   languageName: node
   linkType: hard
 
