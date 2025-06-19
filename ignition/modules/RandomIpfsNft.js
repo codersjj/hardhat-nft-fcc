@@ -72,7 +72,7 @@ module.exports = buildModule("RandomIpfsNft", (m) => {
       gasLane,
       callbackGasLimit,
       enableNativePayment,
-      ["", "", ""],
+      dogTokenURIs,
       mintFee,
     ],
     {
@@ -93,5 +93,9 @@ module.exports = buildModule("RandomIpfsNft", (m) => {
     )
   }
 
-  return { vrfCoordinator: vrfCoordinatorAddress, randomIpfsNft }
+  // Finally, you can return *the contract futures* that you want to expose to
+  // Ignition, tests, and other modules.
+  return {
+    randomIpfsNft,
+  }
 })

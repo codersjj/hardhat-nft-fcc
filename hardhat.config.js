@@ -1,13 +1,13 @@
-const { vars } = require("hardhat/config");
+const { vars } = require("hardhat/config")
 
-require("@nomicfoundation/hardhat-toolbox");
-require("@nomicfoundation/hardhat-ethers");
-require("@nomicfoundation/hardhat-chai-matchers");
-require("dotenv").config();
+require("@nomicfoundation/hardhat-toolbox")
+require("@nomicfoundation/hardhat-ethers")
+require("@nomicfoundation/hardhat-chai-matchers")
+require("dotenv").config()
 
-const PRIVATE_KEY = vars.get("SEPOLIA_PRIVATE_KEY");
-const ALCHEMY_API_KEY = vars.get("ALCHEMY_API_KEY");
-const ETHERSCAN_API_KEY = vars.get("ETHERSCAN_API_KEY");
+const PRIVATE_KEY = vars.get("SEPOLIA_PRIVATE_KEY")
+const ALCHEMY_API_KEY = vars.get("ALCHEMY_API_KEY")
+const ETHERSCAN_API_KEY = vars.get("ETHERSCAN_API_KEY")
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -35,4 +35,12 @@ module.exports = {
     // Doesn't need an API key
     enabled: true,
   },
-};
+  // see: https://hardhat.org/ignition/docs/config#configuration-options
+  ignition: {
+    // blockPollingInterval: 1_000,
+    // timeBeforeBumpingFees: 3 * 60 * 1_000,
+    // maxFeeBumps: 4,
+    requiredConfirmations: 1,
+    // disableFeeBumping: false,
+  },
+}

@@ -24,7 +24,7 @@ async function storeImages(imagesDirPath) {
     const _file = new File([blob], file)
     try {
       const upload = await pinata.upload.public.file(_file)
-      console.log("🚀 ~ storeImages ~ upload:", upload)
+      // console.log("🚀 ~ storeImages ~ upload:", upload)
       res.push(upload)
     } catch (error) {
       console.log(error)
