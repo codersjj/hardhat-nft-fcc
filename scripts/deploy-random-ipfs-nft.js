@@ -1,6 +1,6 @@
 const { vars } = require("hardhat/config")
 const RandomIpfsNftModule = require("../ignition/modules/RandomIpfsNft")
-const { storeImages } = require("../utils/uploadToPinata")
+const { storeImages, storeMetadata } = require("../utils/uploadToPinata")
 
 // get the IPFS hashes of our images
 // 1. With our own IPFS node. https://docs.ipfs.tech/
@@ -8,19 +8,33 @@ const { storeImages } = require("../utils/uploadToPinata")
 // 3. nft.storage https://nft.storage/
 
 const imagesDirPath = "./images/randomNft"
+const metadataTemplate = {
+  name: "",
+  description: "",
+  image: "",
+  attributes: [
+    {
+      trait_type: "Cuteness",
+      value: 100,
+    },
+  ],
+}
 
 async function handleTokenURIs() {
   let tokenURIs = []
 
   // store the image in IPFS
-  await storeImages(imagesDirPath)
+  const { res: uploads } = await storeImages(imagesDirPath)
   // store the metadata in IPFS
+  const res = await storeMetadata(metadataTemplate, uploads)
+
+  res.forEach((upload) => {
+    tokenURIs.push(`ipfs://${upload.cid}`)
+  })
+
+  console.log("🚀 ~ handleTokenURIs ~ tokenURIs:", tokenURIs)
 
   return tokenURIs
-}
-
-async function getDogTokenURIs() {
-  return ["1", "2", "3"]
 }
 
 async function main() {

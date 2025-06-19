@@ -34,6 +34,37 @@ async function storeImages(imagesDirPath) {
   return { res, files }
 }
 
+async function storeMetadata(metadataTemplate, uploads) {
+  console.log("Uploading metadata to Pinata...")
+  let res = []
+
+  for (const upload of uploads) {
+    const tokenURIMetadata = { ...metadataTemplate }
+    tokenURIMetadata.name = upload.name.replace(/\.png$/, "")
+    tokenURIMetadata.description = `An adorable ${tokenURIMetadata.name} pup!`
+    tokenURIMetadata.image = `ipfs://${upload.cid}`
+    console.log(`Uploading tokenURIMetadata for ${tokenURIMetadata.name}...`)
+    // store the JSON in Pinata / IPFS
+    try {
+      const uploadRes = await pinata.upload.public
+        .json(tokenURIMetadata)
+        .name(`${tokenURIMetadata.name}.json`)
+      console.log(
+        `Uploaded tokenURIMetadata for ${tokenURIMetadata.name} successfully!`
+      )
+      res.push(uploadRes)
+    } catch (error) {
+      console.error(
+        `Error uploading metadata for ${tokenURIMetadata.name}:`,
+        error
+      )
+    }
+  }
+
+  return res
+}
+
 module.exports = {
   storeImages,
+  storeMetadata,
 }
