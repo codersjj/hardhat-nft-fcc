@@ -9,6 +9,12 @@ const pinata = new PinataSDK({
   pinataGateway: vars.get("PINATA_GATEWAY"),
 })
 
+function getImageFileCount(imagesDirPath) {
+  const absoluteImagesDirPath = path.resolve(imagesDirPath)
+  const files = fs.readdirSync(absoluteImagesDirPath)
+  return files.length
+}
+
 async function storeImages(imagesDirPath) {
   const absoluteImagesDirPath = path.resolve(imagesDirPath)
   const files = fs.readdirSync(absoluteImagesDirPath)
@@ -65,6 +71,7 @@ async function storeMetadata(metadataTemplate, uploads) {
 }
 
 module.exports = {
+  getImageFileCount,
   storeImages,
   storeMetadata,
 }

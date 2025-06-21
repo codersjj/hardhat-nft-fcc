@@ -1,6 +1,6 @@
 const hre = require("hardhat")
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers")
-const { developmentChains } = require("../../hardhat-helper-config")
+const { developmentChains } = require("../../helper-hardhat-config")
 const { assert } = require("chai")
 
 !developmentChains.includes(hre.network.name)

@@ -2,14 +2,18 @@ const path = require("path")
 const fs = require("fs")
 const { vars } = require("hardhat/config")
 const RandomIpfsNftModule = require("../ignition/modules/RandomIpfsNft")
-const { storeImages, storeMetadata } = require("../utils/uploadToPinata")
+const {
+  storeImages,
+  storeMetadata,
+  getImageFileCount,
+} = require("../utils/uploadToPinata")
+const { IMAGES_DIR_PATH } = require("../constants")
 
 // get the IPFS hashes of our images
 // 1. With our own IPFS node. https://docs.ipfs.tech/
 // 2. Pinata https://pinata.cloud/
 // 3. nft.storage https://nft.storage/
 
-const imagesDirPath = "./images/randomNft"
 const metadataTemplate = {
   name: "",
   description: "",
@@ -26,7 +30,7 @@ async function handleTokenURIs() {
   let tokenURIs = []
 
   // store the image in IPFS
-  const { res: uploads } = await storeImages(imagesDirPath)
+  const { res: uploads } = await storeImages(IMAGES_DIR_PATH)
   // store the metadata in IPFS
   const res = await storeMetadata(metadataTemplate, uploads)
 
@@ -49,7 +53,8 @@ function updateTokenURIsInParametersJson(tokenURIs) {
 }
 
 async function main() {
-  let tokenURIs = null
+  const fileCount = getImageFileCount(IMAGES_DIR_PATH)
+  let tokenURIs = Array(fileCount).fill("")
   // after we handleTokenURIs successfully, we can set UPLOAD_TO_PINATA to false
   // to skip uploading to Pinata in the future
   // this is useful for development, so we don't have to upload the same images and metadata
@@ -74,3 +79,7 @@ async function main() {
 }
 
 main().catch(console.error)
+
+module.exports = {
+  handleTokenURIs,
+}
