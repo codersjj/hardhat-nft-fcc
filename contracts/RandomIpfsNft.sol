@@ -4,6 +4,7 @@ pragma solidity ^0.8.28;
 import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 import {ERC721, ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "hardhat/console.sol";
 
 error RandomIpfsNft__RangeOutOfBounds();
 error RandomIpfsNft__NeedMoreETHSent();
@@ -94,6 +95,10 @@ contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721URIStorage {
         uint256 requestId,
         uint256[] calldata randomWords
     ) internal override {
+        console.log("Gas at start", gasleft());
+        uint256 newItemId = s_tokenCounter;
+        s_tokenCounter++;
+        console.log("Gas after incrementing token counter", gasleft());
         address dogOwner = s_requestIdToSender[requestId];
 
         // What does this token look like?
@@ -105,9 +110,9 @@ contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721URIStorage {
         // 45 -> St. Bernard
 
         Breed dogBreed = getBreedFromModdedRng(moddedRng);
-        _safeMint(dogOwner, s_tokenCounter);
-        _setTokenURI(s_tokenCounter, s_dogTokenURIs[uint256(dogBreed)]);
-        s_tokenCounter++;
+        _safeMint(dogOwner, newItemId);
+        console.log("Gas after minting NFT", gasleft());
+        _setTokenURI(newItemId, s_dogTokenURIs[uint256(dogBreed)]);
 
         emit NFTMinted(dogBreed, dogOwner);
     }
