@@ -43,4 +43,7 @@ module.exports = {
     requiredConfirmations: 1,
     // disableFeeBumping: false,
   },
+  // mocha: {
+  //   timeout: 200000, // 200 seconds max for running tests
+  // },
 }

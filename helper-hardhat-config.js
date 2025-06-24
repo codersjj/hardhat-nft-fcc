@@ -9,7 +9,7 @@ const networkConfig = {
       "0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae",
     subscriptionId:
       "2285852935276885187536834546937285128228667036727270462860326086981248659160",
-    callbackGasLimit: "100000",
+    callbackGasLimit: "500000",
     enableNativePayment: false,
   },
   31337: {
@@ -17,7 +17,7 @@ const networkConfig = {
     mintFee: ethers.parseEther("0.01"),
     gasLane:
       "0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae",
-    callbackGasLimit: "100000",
+    callbackGasLimit: "500000",
     enableNativePayment: false,
   },
 }
