@@ -85,7 +85,7 @@ const { assert, expect } = require("chai")
         }
       }
 
-      describe("Constructor", async () => {
+      describe("Constructor", () => {
         it("Sets starting values correctly", async () => {
           const {
             randomIpfsNft,
@@ -113,7 +113,7 @@ const { assert, expect } = require("chai")
         })
       })
 
-      describe("requestNft", async () => {
+      describe("requestNft", () => {
         it("fails if payment isn't sent with the request", async () => {
           const { randomIpfsNft } = await loadFixture(
             deployRandomIpfsNftFixture
@@ -152,7 +152,7 @@ const { assert, expect } = require("chai")
         })
       })
 
-      describe("fulfillRandomWords", async () => {
+      describe("fulfillRandomWords", () => {
         it("Mints an NFT after random number is returned", async () => {
           const { randomIpfsNft, vrfCoordinatorV2_5Mock, deployer, mintFee } =
             await loadFixture(deployRandomIpfsNftFixture)
@@ -195,6 +195,44 @@ const { assert, expect } = require("chai")
               reject(error)
             }
           })
+        })
+      })
+
+      describe("getBreedFromModdedRng", () => {
+        it("Should return pug if moddedRng < 10", async () => {
+          const { randomIpfsNft } = await loadFixture(
+            deployRandomIpfsNftFixture
+          )
+          const breed = await randomIpfsNft.getBreedFromModdedRng(9)
+          assert.equal(breed, 0)
+        })
+
+        it("Should return shiba-inu if moddedRng is between 10 - 40", async () => {
+          const { randomIpfsNft } = await loadFixture(
+            deployRandomIpfsNftFixture
+          )
+          const breed = await randomIpfsNft.getBreedFromModdedRng(35)
+          assert.equal(breed, 1)
+        })
+
+        it("Should return st. bernard if moddedRng is between 40 - 99", async () => {
+          const { randomIpfsNft } = await loadFixture(
+            deployRandomIpfsNftFixture
+          )
+          const breed = await randomIpfsNft.getBreedFromModdedRng(99)
+          assert.equal(breed, 2)
+        })
+
+        it("Should revert if moddedRng > 99", async () => {
+          const { randomIpfsNft } = await loadFixture(
+            deployRandomIpfsNftFixture
+          )
+          await expect(
+            randomIpfsNft.getBreedFromModdedRng(100)
+          ).to.be.revertedWithCustomError(
+            randomIpfsNft,
+            "RandomIpfsNft__RangeOutOfBounds"
+          )
         })
       })
     })

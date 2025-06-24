@@ -124,20 +124,17 @@ contract RandomIpfsNft is VRFConsumerBaseV2Plus, ERC721URIStorage {
         uint256 cumulativeSum = 0;
         // for example: moddedRng = 25
         for (uint256 i = 0; i < chanceArray.length; i++) {
-            if (
-                moddedRng >= cumulativeSum &&
-                moddedRng < cumulativeSum + chanceArray[i]
-            ) {
+            if (moddedRng >= cumulativeSum && moddedRng < chanceArray[i]) {
                 return Breed(i);
             }
-            cumulativeSum += chanceArray[i];
+            cumulativeSum = chanceArray[i];
         }
 
         revert RandomIpfsNft__RangeOutOfBounds();
     }
 
     function getChanceArray() public pure returns (uint256[3] memory) {
-        return [10, 30, MAX_CHANCE_VALUE];
+        return [10, 40, MAX_CHANCE_VALUE];
     }
 
     function withdraw() public onlyOwner {
