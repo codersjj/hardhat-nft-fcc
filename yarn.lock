@@ -2041,6 +2041,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"base64-sol@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "base64-sol@npm:1.1.0"
+  checksum: 10c0/31738b1e64e1ca73b5bf9e8bba2af0f9bbbb2ab43853698880ead84fa103b9087f0dbaab952f3238a6c80ea9c701794b7a46d1ad9b0809efc85af80073249212
+  languageName: node
+  linkType: hard
+
 "bech32@npm:1.1.4":
   version: 1.1.4
   resolution: "bech32@npm:1.1.4"
@@ -3678,6 +3685,7 @@ __metadata:
     "@typechain/ethers-v6": "npm:^0.5.0"
     "@typechain/hardhat": "npm:^9.0.0"
     "@types/mocha": "npm:>=9.1.0"
+    base64-sol: "npm:^1.1.0"
     chai: "npm:^5.2.0"
     dotenv: "npm:^16.5.0"
     ethers: "npm:^6.14.1"
