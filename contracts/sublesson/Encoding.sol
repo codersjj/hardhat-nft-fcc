@@ -1,0 +1,111 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.26;
+
+contract Encoding {
+    function combineStrings() public pure returns (string memory) {
+        return string(abi.encodePacked("Hi Mom!", "Miss you!"));
+    }
+
+    // globally available methods & units
+    // see: https://docs.soliditylang.org/en/latest/units-and-global-variables.html#abi-encoding-and-decoding-functions
+
+    // 0.8.12+ string.concat(stringA, stringB)
+
+    // When we send a transaction, it is "compiled" down to bytecode and sent in a "data" object of the transaction.
+    // That data object now governs how future transactions will interact with it.
+    // For example: https://etherscan.io/tx/0x112133a0a74af775234c077c397c8b75850ceb61840b33b23ae06b753da40490
+
+    // Now, in order to read and understand these bytes, you need a special reader.
+    // This is supposed to be a new contract? How can you tell?
+    // Let's compile this contract in hardhat or remix, and you'll see the "bytecode" output - that's what will be sent when
+    // creating a contract.
+
+    // This bytecode represents exactly the low level computer instructions to make our contract happen.
+    // These low level instructions are spread out into something called opcodes.
+
+    // An opcode is going to be 2 characters that represents some special instruction, and also optionally has an input
+
+    // You can see a list of them here:
+    // https://www.evm.codes/
+    // Or here:
+    // https://github.com/crytic/evm-opcodes
+
+    // This opcode reader is sometimes abstractly called the EVM - or the ethereum virtual machine.
+    // The EVM basically represents all the instructions a computer needs to be able to read.
+    // Any language that can compile down to bytecode with these opcodes is considered EVM compatible
+    // Which is why so many blockchains are able to do this - you just get them to be able to understand the EVM and presto! Solidity smart contracts work on those blockchains.
+
+    // Now, just the binary can be hard to read, so why not press the `assembly` button? You'll get the binary translated into
+    // the opcodes and inputs for us!
+    // We aren't going to go much deeper into opcodes, but they are important to know to understand how to build more complex apps.
+
+    // How does this relate back to what we are talking about?
+    // Well let's look at this encoding stuff
+
+    // In this function, we encode the number one to what it'll look like in binary
+    // Or put another way, we ABI encode it.
+    function encocdeNumber() public pure returns (bytes memory) {
+        bytes memory numberBytes = abi.encode(1);
+        return numberBytes;
+    }
+
+    // You'd use this to make calls to contracts
+    function encodeString() public pure returns (bytes memory) {
+        bytes memory someStringBytes = abi.encode("some string");
+        return someStringBytes;
+    }
+
+    // https://forum.openzeppelin.com/t/difference-between-abi-encodepacked-string-and-bytes-string/11837
+    // encodePacked
+    // This is great if you want to save space, not good for calling functions.
+    // You can sort of think of it as a compressor for the massive bytes object above.
+    function encodeStringPacked() public pure returns (bytes memory) {
+        bytes memory someStringBytes = abi.encodePacked("some string");
+        return someStringBytes;
+    }
+
+    // This is just type casting to string
+    // It's slightly different from above, and they have different gas costs
+    function encodeStringBytes() public pure returns (bytes memory) {
+        bytes memory someStringBytes = bytes("some string");
+        return someStringBytes;
+    }
+
+    function decodeBytes() public pure returns (string memory) {
+        string memory someString = abi.decode(encodeString(), (string));
+        return someString;
+    }
+
+    function multiEncode() public pure returns (bytes memory) {
+        bytes memory someStrBytes = abi.encode("some thing", "it's bigger!");
+        return someStrBytes;
+    }
+
+    function multiDecode() public pure returns (string memory, string memory) {
+        (string memory str1, string memory str2) = abi.decode(
+            multiEncode(),
+            (string, string)
+        );
+        return (str1, str2);
+    }
+
+    function multiEncodePacked() public pure returns (bytes memory) {
+        bytes memory someStrBytes = abi.encodePacked(
+            "some string",
+            "it's bigger!"
+        );
+        return someStrBytes;
+    }
+
+    // This doesn't work!
+    function multiDecodePacked() public pure returns (string memory) {
+        string memory someStr = abi.decode(multiEncodePacked(), (string));
+        return someStr;
+    }
+
+    function multiStringCastPacked() public pure returns (string memory) {
+        string memory someStr = string(multiEncodePacked());
+        return someStr;
+    }
+}
