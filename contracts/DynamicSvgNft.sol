@@ -4,6 +4,7 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import "base64-sol/base64.sol";
 
 error ERC721Metadata__URI_QueryFor_NonExistentToken();
@@ -18,12 +19,20 @@ contract DynamicSvgNft is ERC721 {
     string private i_highImageURI;
     string private constant BASE64_ENCODED_SVG_PREFIX =
         "data:image/svg+xml;base64,";
+    AggregatorV3Interface internal immutable i_priceFeed;
+    mapping(uint256 => int256) public s_tokenIdToHighValue;
+
+    event CreatedNFT(uint256 indexed tokenId, int256 highValue);
 
     constructor(
+        address priceFeedAddress,
         string memory lowSvg,
         string memory highSvg
     ) ERC721("Dynamic SVG NFT", "DSN") {
         s_tokenCounter = 0;
+        i_lowImageURI = svgToImageURI(lowSvg);
+        i_highImageURI = svgToImageURI(highSvg);
+        i_priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
 
     function svgToImageURI(
@@ -40,9 +49,13 @@ contract DynamicSvgNft is ERC721 {
             );
     }
 
-    function mintNft() public {
-        _safeMint(msg.sender, s_tokenCounter);
+    function mintNft(int256 highValue) public {
+        uint256 newTokenId = s_tokenCounter;
+        s_tokenIdToHighValue[newTokenId] = highValue;
+        _safeMint(msg.sender, newTokenId);
         s_tokenCounter = s_tokenCounter + 1;
+
+        emit CreatedNFT(newTokenId, highValue);
     }
 
     function _baseURI() internal pure override returns (string memory) {
@@ -56,7 +69,12 @@ contract DynamicSvgNft is ERC721 {
             revert ERC721Metadata__URI_QueryFor_NonExistentToken();
         }
 
-        string memory imageURI = "hi!";
+        string memory imageURI = i_lowImageURI;
+        // Get the latest price from the Chainlink Feed
+        (, int256 price, , , ) = i_priceFeed.latestRoundData();
+        if (price >= s_tokenIdToHighValue[tokenId]) {
+            imageURI = i_highImageURI;
+        }
 
         // https://developer.mozilla.org/en-US/docs/Web/URI/Reference/Schemes/data
         // image URI: data:image/svg+xml;base64,<data>
