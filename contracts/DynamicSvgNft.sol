@@ -6,6 +6,7 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import "base64-sol/base64.sol";
+import "hardhat/console.sol";
 
 error ERC721Metadata__URI_QueryFor_NonExistentToken();
 
@@ -72,6 +73,7 @@ contract DynamicSvgNft is ERC721 {
         string memory imageURI = i_lowImageURI;
         // Get the latest price from the Chainlink Feed
         (, int256 price, , , ) = i_priceFeed.latestRoundData();
+        console.log("price", uint(price));
         if (price >= s_tokenIdToHighValue[tokenId]) {
             imageURI = i_highImageURI;
         }
@@ -97,5 +99,21 @@ contract DynamicSvgNft is ERC721 {
                     )
                 )
             );
+    }
+
+    function getTokenCounter() public view returns (uint256) {
+        return s_tokenCounter;
+    }
+
+    function getLowSvg() public view returns (string memory) {
+        return i_lowImageURI;
+    }
+
+    function getHighSvg() public view returns (string memory) {
+        return i_highImageURI;
+    }
+
+    function getPriceFeed() public view returns (AggregatorV3Interface) {
+        return i_priceFeed;
     }
 }
