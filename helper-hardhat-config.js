@@ -11,6 +11,7 @@ const networkConfig = {
       "2285852935276885187536834546937285128228667036727270462860326086981248659160",
     callbackGasLimit: "500000",
     enableNativePayment: false,
+    ethUsdPriceFeed: "0x694AA1769357215DE4FAC081bf1f309aDC325306",
   },
   31337: {
     name: "hardhat",
@@ -24,7 +25,13 @@ const networkConfig = {
 
 const developmentChains = ["hardhat", "localhost"]
 
+const DECIMALS = 8
+// see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#numeric_separators
+const INITIAL_ANSWER = 2600_00000000
+
 module.exports = {
   networkConfig,
   developmentChains,
+  DECIMALS,
+  INITIAL_ANSWER,
 }
