@@ -1,56 +1,17 @@
 const path = require("path")
-const fs = require("fs")
 const { vars } = require("hardhat/config")
 const RandomIpfsNftModule = require("../ignition/modules/RandomIpfsNft")
-const {
-  storeImages,
-  storeMetadata,
-  getImageFileCount,
-} = require("../utils/uploadToPinata")
+const { getImageFileCount } = require("../utils/uploadToPinata")
 const { IMAGES_DIR_PATH } = require("../constants")
+const {
+  handleTokenURIs,
+  updateTokenURIsInParametersJson,
+} = require("../utils/handleRandomIpfsNft")
 
 // get the IPFS hashes of our images
 // 1. With our own IPFS node. https://docs.ipfs.tech/
 // 2. Pinata https://pinata.cloud/
 // 3. nft.storage https://nft.storage/
-
-const metadataTemplate = {
-  name: "",
-  description: "",
-  image: "",
-  attributes: [
-    {
-      trait_type: "Cuteness",
-      value: 100,
-    },
-  ],
-}
-
-async function handleTokenURIs() {
-  let tokenURIs = []
-
-  // store the image in IPFS
-  const { res: uploads } = await storeImages(IMAGES_DIR_PATH)
-  // store the metadata in IPFS
-  const res = await storeMetadata(metadataTemplate, uploads)
-
-  res.forEach((upload) => {
-    tokenURIs.push(`ipfs://${upload.cid}`)
-  })
-
-  console.log("🚀 ~ handleTokenURIs ~ tokenURIs:", tokenURIs)
-
-  return tokenURIs
-}
-
-function updateTokenURIsInParametersJson(tokenURIs) {
-  const parametersPath = path.join(__dirname, "../ignition/parameters.json")
-  const parameters = JSON.parse(fs.readFileSync(parametersPath, "utf8"))
-  parameters.RandomIpfsNft = parameters.RandomIpfsNft || {}
-  parameters.RandomIpfsNft.dogTokenURIs = tokenURIs
-  fs.writeFileSync(parametersPath, JSON.stringify(parameters, null, 2))
-  console.log("Updated parameters.json with tokenURIs.")
-}
 
 async function main() {
   const fileCount = getImageFileCount(IMAGES_DIR_PATH)

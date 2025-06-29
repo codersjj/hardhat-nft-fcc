@@ -19,6 +19,7 @@ module.exports = buildModule("RandomIpfsNft", (m) => {
   const { mintFee, gasLane, callbackGasLimit, enableNativePayment } =
     currentNetworkConfig
 
+  let vrfCoordinator
   let vrfCoordinatorAddress
   let subscriptionId
 
@@ -27,7 +28,7 @@ module.exports = buildModule("RandomIpfsNft", (m) => {
     console.log(
       "development chain detected, deploying VRFCoordinatorV2_5Mock..."
     )
-    const vrfCoordinator = m.contract("VRFCoordinatorV2_5Mock", [
+    vrfCoordinator = m.contract("VRFCoordinatorV2_5Mock", [
       BASE_FEE,
       GAS_PRICE,
       WEI_PER_UNIT_LINK,
@@ -63,6 +64,7 @@ module.exports = buildModule("RandomIpfsNft", (m) => {
     subscriptionId = currentNetworkConfig.subscriptionId
   }
 
+  const deployer = m.getAccount(0)
   // Deploy RandomIpfsNft
   const randomIpfsNft = m.contract(
     "RandomIpfsNft",
@@ -78,6 +80,7 @@ module.exports = buildModule("RandomIpfsNft", (m) => {
     {
       id: "RandomIpfsNft",
       // after: [vrfCoordinatorAddress],
+      from: deployer,
     }
   )
 
@@ -93,9 +96,10 @@ module.exports = buildModule("RandomIpfsNft", (m) => {
     )
   }
 
+  const res = developmentChains.includes(network.name)
+    ? { randomIpfsNft, vrfCoordinator }
+    : { randomIpfsNft }
   // Finally, you can return *the contract futures* that you want to expose to
   // Ignition, tests, and other modules.
-  return {
-    randomIpfsNft,
-  }
+  return res
 })
